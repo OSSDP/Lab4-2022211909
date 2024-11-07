@@ -1,23 +1,23 @@
-name: tests and merge PR
+name: Tests and Merge PR
 
 on:
-  push:
   pull_request:
     branches:
       - main
+    types: [opened, synchronize, reopened, labeled, unlabeled] # Trigger on PR events like opening, syncing, labeling
 
 jobs:
   run_tests:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout the repository
-      uses: actions/checkout@v3  # Use the latest stable version of actions/checkout
+      uses: actions/checkout@v3
     - name: Set up JDK 22
-      uses: actions/setup-java@v3  # Use the latest version of setup-java
+      uses: actions/setup-java@v3
       with:
         java-version: 22
     - name: Cache Maven packages
-      uses: actions/cache@v3  # Use the latest stable version of actions/cache
+      uses: actions/cache@v3
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -26,16 +26,19 @@ jobs:
       run: mvn -B test --file pom.xml
 
   merge_pr:
-    needs: run_tests  # Ensure tests run before attempting merge
-    if: github.event.pull_request.draft == false && github.event.pull_request.mergeable == true  # Only merge if PR is not a draft and is mergeable
+    needs: run_tests
+    if: >
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.mergeable == true &&
+      contains(github.event.pull_request.labels.*.name, 'Automerge')
     runs-on: ubuntu-latest
     steps:
     - name: Checkout the repository
-      uses: actions/checkout@v3  # Ensure you checkout the repository in this job too
+      uses: actions/checkout@v3
     - name: Automerge the PR
-      uses: pascalgn/automerge-action@v0.14.3  # Automerge action version you are using
+      uses: pascalgn/automerge-action@v0.14.3
       env:
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        MERGE_LABELS: "Automerge"  # Optional: Automate merging based on labels
-        MERGE_METHOD: "squash"  # Choose the merge method (e.g., squash)
-        MERGE_COMMIT_MESSAGE: "Merge PR: ${GITHUB_HEAD_REF}"  # Customize commit message (optional)
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        MERGE_LABELS: "Automerge"
+        MERGE_METHOD: "squash"
+        MERGE_COMMIT_MESSAGE: "Merge PR: ${{ github.head_ref }}"
