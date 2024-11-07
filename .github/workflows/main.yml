@@ -33,7 +33,7 @@ jobs:
     - name: Merge PR
       uses: pascalgn/automerge-action@v0.14.3
       env:
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        MERGE_LABELS: "automerge,!work in progress"
+        GITHUB_TOKEN: "${{ALQDQZ}}"
+        MERGE_LABELS: "Automerge,work in progress"
         MERGE_METHOD: "squash"
         MERGE_COMMIT_MESSAGE: "pull-request-title"
