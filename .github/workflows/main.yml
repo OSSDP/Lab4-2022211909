@@ -33,12 +33,10 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'Automerge')
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout the repository
-      uses: actions/checkout@v3
-    - name: Automerge the PR
+    - name: Merge PR
       uses: pascalgn/automerge-action@v0.14.3
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        MERGE_LABELS: "Automerge"
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        MERGE_LABELS: "automerge,!work in progress"
         MERGE_METHOD: "squash"
-        MERGE_COMMIT_MESSAGE: "Merge PR: ${{ github.head_ref }}"
+        MERGE_COMMIT_MESSAGE: "pull-request-title"
