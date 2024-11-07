@@ -1,11 +1,9 @@
-name: tests and merge PR
-
+name: Tests and merge PR
 on:
   push:
   pull_request:
     branches:
       - main
-
 jobs:
   run_tests:
     runs-on: ubuntu-latest
@@ -24,7 +22,6 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: Run tests with Maven
       run: mvn -B test --file pom.xml
-
   merge_pr:
     needs: run_tests
     if: github.event.pull_request.draft == false && github.event.pull_request.mergeable == true
@@ -33,7 +30,7 @@ jobs:
     - name: Merge PR
       uses: pascalgn/automerge-action@v0.14.3
       env:
-        GITHUB_TOKEN: "${{ALQDQZ}}"
-        MERGE_LABELS: "Automerge,work in progress"
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        MERGE_LABELS: "Automerge"
         MERGE_METHOD: "squash"
         MERGE_COMMIT_MESSAGE: "pull-request-title"
