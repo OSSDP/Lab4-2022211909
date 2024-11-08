@@ -46,3 +46,6 @@ jobs:
           repository: OSSDP/Lab4-2022211909
           pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: MERGE
+
+permissions:
+  pull-requests: write
