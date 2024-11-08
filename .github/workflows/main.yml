@@ -13,7 +13,7 @@ jobs:
       - name: Enable PR Auto Merge
         uses: peter-evans/enable-pull-request-automerge@v2
         with:
-          token: ${{ secrets.ALQDQZ }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
           pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: MERGE
