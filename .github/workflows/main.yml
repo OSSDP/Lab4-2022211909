@@ -1,4 +1,4 @@
-name: tests
+name: tests and Auto Merge PR
 
 on:
   push:
@@ -36,16 +36,21 @@ jobs:
     if: success() && github.event_name == 'pull_request'  # Ensure the automerge step only runs for PR events
 
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v2
+    - name: Checkout the repository
+      uses: actions/checkout@v2
 
-      - name: Enable PR Auto Merge
-        uses: peter-evans/enable-pull-request-automerge@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: OSSDP/Lab4-2022211909
-          pull-request-number: ${{ github.event.pull_request.number }}
-          merge-method: MERGE
+    - name: automerge
+      uses: "pascalgn/automerge-action@v0.16.3"
+      env:
+        GITHUB_TOKEN: "${{ secrets.PAT }}"
+        MERGE_LABELS: "automerge"
+        MERGE_METHOD: "squash"
+        MERGE_COMMIT_MESSAGE: "automatic"
+        MERGE_FORKS: "true"
+        MERGE_RETRIES: "50"
+        MERGE_RETRY_SLEEP: "10000"
+        MERGE_REQUIRED_APPROVALS: "1"
+        UPDATE_METHOD: "rebase"
 
 permissions:
   pull-requests: write
