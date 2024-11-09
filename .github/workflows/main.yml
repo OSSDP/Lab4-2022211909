@@ -42,7 +42,7 @@ jobs:
     - name: Automerge PR
       uses: pascalgn/automerge-action@v0.16.3
       env:
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"  # Use the automatically provided token
+        GITHUB_TOKEN: "${{ secrets.Test }}"  # Use the automatically provided token
         MERGE_LABELS: "automerge"
         MERGE_METHOD: "squash"
         MERGE_COMMIT_MESSAGE: "automatic"
