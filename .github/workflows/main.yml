@@ -1,56 +1,47 @@
-name: Tests and Auto Merge PR
+permissions: write-all
+name: Automerge
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
-    branches:
-      - main
+    types:
+      - labeled
+      - unlabeled
+      - synchronize
+      - opened
+      - edited
+      - ready_for_review
+      - reopened
+      - unlocked
+  pull_request_review:
+    types:
+      - submitted
+  check_suite:
+    types:
+      - completed
 
 jobs:
-  run_tests:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout the repository
-      uses: actions/checkout@v2
-
-    - name: Set up JDK 22
-      uses: actions/setup-java@v1
-      with:
-        java-version: 22
-
-    - name: Cache Maven packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-
-    - name: Run tests with Maven
-      run: mvn -B test --file pom.xml
-
   automerge:
     runs-on: ubuntu-latest
-    needs: run_tests
-    if: success() && github.event_name == 'pull_request' && github.event.pull_request.review_comments && github.event.pull_request.approvals >= 1
-
     steps:
-    - name: Checkout the repository
-      uses: actions/checkout@v3  # Updated to the latest stable version
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Automerge PR
-      uses: pascalgn/automerge-action@v0.16.3
-      env:
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"  # Use the automatically provided token
-        MERGE_LABELS: "automerge"
-        MERGE_METHOD: "squash"
-        MERGE_COMMIT_MESSAGE: "automatic"
-        MERGE_FORKS: "true"
-        MERGE_RETRIES: "3"  # Adjusted retry count
-        MERGE_RETRY_SLEEP: "5000"  # Adjusted sleep time
-        MERGE_REQUIRED_APPROVALS: "1"
-        UPDATE_METHOD: "rebase"
+      - name: Automerge
+        uses: "pascalgn/automerge-action@629929da409181990e4e638dcf84a74e11d3af66"
+        env:
+          GITHUB_TOKEN: "${{ secrets.TEST }}"
+          MERGE_LABELS: "automerge,!work in progress"
+          MERGE_METHOD: "squash"
+          MERGE_COMMIT_MESSAGE: "pull-request-title"
 
-permissions:
-  pull-requests: write
+      - name: Trigger tests workflow via GitHub API
+        uses: actions/github-script@v5
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'tests.yml',
+              ref: 'main'
+            });
+
